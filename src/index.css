@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-sidebar: #0F172A;
+  --color-sidebar-text: #CBD5E1;
+  --color-sidebar-active: #1E293B;
+}
+
+:root {
+  --radius: 0.5rem;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+.dark select,
+.dark select option {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
+.dark input,
+.dark textarea {
+  color-scheme: dark;
+}
+
+@media print {
+  .no-print { display: none !important; }
+}
