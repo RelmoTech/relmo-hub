@@ -3,9 +3,10 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recha
 import { TrendingUp, TrendingDown, Wallet, FileText, AlertCircle } from 'lucide-react'
 import { useTransactions, useProjects, useTodos, useInvoices } from '@/hooks/useSupabase'
 import { useActivityFilter } from '@/hooks/useActivityFilter'
+import { useLanguage } from '@/hooks/useLanguage'
 import { formatCurrency, formatDate } from '@/lib/utils'
 import { format, subMonths, startOfMonth, endOfMonth, startOfYear, endOfYear, isBefore, addDays } from 'date-fns'
-import { nl } from 'date-fns/locale'
+import { nl, fr } from 'date-fns/locale'
 import { Link } from 'react-router-dom'
 
 export function Dashboard() {
@@ -14,6 +15,8 @@ export function Dashboard() {
   const { projects } = useProjects(selectedActivityId)
   const { todos } = useTodos(selectedActivityId)
   const { invoices } = useInvoices(selectedActivityId)
+  const { t, lang } = useLanguage()
+  const locale = lang === 'fr' ? fr : nl
 
   const now = new Date()
   const yearStart = startOfYear(now)
@@ -40,12 +43,12 @@ export function Dashboard() {
         return d >= ms && d <= me
       })
       return {
-        month: format(month, 'MMM', { locale: nl }),
-        inkomsten: monthTx.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0),
-        uitgaven: monthTx.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0),
+        month: format(month, 'MMM', { locale }),
+        [t('income')]: monthTx.filter(tx => tx.amount > 0).reduce((s, tx) => s + tx.amount, 0),
+        [t('expenses')]: monthTx.filter(tx => tx.amount < 0).reduce((s, tx) => s + Math.abs(tx.amount), 0),
       }
     })
-  }, [transactions, now])
+  }, [transactions, now, lang])
 
   const urgentTodos = useMemo(() => {
     const soon = addDays(now, 3)
@@ -58,15 +61,15 @@ export function Dashboard() {
   const recentTx = transactions.slice(0, 5)
 
   const cards = [
-    { label: `Inkomsten ${now.getFullYear()}`, value: income, icon: TrendingUp, color: 'text-emerald-500' },
-    { label: `Uitgaven ${now.getFullYear()}`, value: expenses, icon: TrendingDown, color: 'text-red-500' },
-    { label: 'Netto', value: net, icon: Wallet, color: net >= 0 ? 'text-emerald-500' : 'text-red-500' },
-    { label: 'Open facturen', value: openInvoices, icon: FileText, color: 'text-blue-500', isCount: true },
+    { label: `${t('income')} ${now.getFullYear()}`, value: income, icon: TrendingUp, color: 'text-emerald-500' },
+    { label: `${t('expenses')} ${now.getFullYear()}`, value: expenses, icon: TrendingDown, color: 'text-red-500' },
+    { label: t('net'), value: net, icon: Wallet, color: net >= 0 ? 'text-emerald-500' : 'text-red-500' },
+    { label: t('openInvoices'), value: openInvoices, icon: FileText, color: 'text-blue-500', isCount: true },
   ]
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
+      <h1 className="text-2xl font-bold">{t('dashboard')}</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map(c => (
@@ -83,14 +86,14 @@ export function Dashboard() {
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
-        <h2 className="text-sm font-semibold mb-4">Inkomsten vs Uitgaven (6 maanden)</h2>
+        <h2 className="text-sm font-semibold mb-4">{t('incomeVsExpenses')}</h2>
         <ResponsiveContainer width="100%" height={250}>
           <BarChart data={chartData}>
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v) => formatCurrency(Number(v))} />
-            <Bar dataKey="inkomsten" fill="#10B981" radius={[4, 4, 0, 0]} />
-            <Bar dataKey="uitgaven" fill="#EF4444" radius={[4, 4, 0, 0]} />
+            <Bar dataKey={t('income')} fill="#10B981" radius={[4, 4, 0, 0]} />
+            <Bar dataKey={t('expenses')} fill="#EF4444" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -98,54 +101,54 @@ export function Dashboard() {
       <div className="grid md:grid-cols-3 gap-4">
         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold">Recente transacties</h2>
-            <Link to="/financien" className="text-xs text-blue-500">Bekijk alle</Link>
+            <h2 className="text-sm font-semibold">{t('recentTransactions')}</h2>
+            <Link to="/financien" className="text-xs text-blue-500">{t('viewAll')}</Link>
           </div>
           <div className="space-y-2">
-            {recentTx.map(t => (
-              <div key={t.id} className="flex justify-between text-sm">
+            {recentTx.map(tx => (
+              <div key={tx.id} className="flex justify-between text-sm">
                 <div className="truncate flex-1 mr-2">
-                  <div className="truncate">{t.description || '-'}</div>
-                  <div className="text-xs text-slate-400">{formatDate(t.date)}</div>
+                  <div className="truncate">{tx.description || '-'}</div>
+                  <div className="text-xs text-slate-400">{formatDate(tx.date)}</div>
                 </div>
-                <span className={t.amount >= 0 ? 'text-emerald-500' : 'text-red-500'}>
-                  {formatCurrency(t.amount)}
+                <span className={tx.amount >= 0 ? 'text-emerald-500' : 'text-red-500'}>
+                  {formatCurrency(tx.amount)}
                 </span>
               </div>
             ))}
-            {recentTx.length === 0 && <p className="text-sm text-slate-400">Geen transacties</p>}
+            {recentTx.length === 0 && <p className="text-sm text-slate-400">{t('noTransactions')}</p>}
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold">Actieve projecten</h2>
-            <Link to="/projecten" className="text-xs text-blue-500">Bekijk alle</Link>
+            <h2 className="text-sm font-semibold">{t('activeProjects')}</h2>
+            <Link to="/projecten" className="text-xs text-blue-500">{t('viewAll')}</Link>
           </div>
           <div className="space-y-2">
             {activeProjects.map(p => (
               <div key={p.id} className="text-sm">
                 <div className="font-medium truncate">{p.title}</div>
-                <div className="text-xs text-slate-400">{p.client || 'Geen klant'} {p.deadline ? `• ${formatDate(p.deadline)}` : ''}</div>
+                <div className="text-xs text-slate-400">{p.client || t('noClient')} {p.deadline ? `• ${formatDate(p.deadline)}` : ''}</div>
               </div>
             ))}
-            {activeProjects.length === 0 && <p className="text-sm text-slate-400">Geen actieve projecten</p>}
+            {activeProjects.length === 0 && <p className="text-sm text-slate-400">{t('noActiveProjects')}</p>}
           </div>
         </div>
 
         <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold">Urgente taken</h2>
-            <Link to="/taken" className="text-xs text-blue-500">Bekijk alle</Link>
+            <h2 className="text-sm font-semibold">{t('urgentTasks')}</h2>
+            <Link to="/taken" className="text-xs text-blue-500">{t('viewAll')}</Link>
           </div>
           <div className="space-y-2">
-            {urgentTodos.map(t => (
-              <div key={t.id} className="flex items-center gap-2 text-sm">
-                <AlertCircle size={14} className={t.priority === 'hoog' ? 'text-red-500' : 'text-amber-500'} />
-                <span className="truncate">{t.title}</span>
+            {urgentTodos.map(todo => (
+              <div key={todo.id} className="flex items-center gap-2 text-sm">
+                <AlertCircle size={14} className={todo.priority === 'hoog' ? 'text-red-500' : 'text-amber-500'} />
+                <span className="truncate">{todo.title}</span>
               </div>
             ))}
-            {urgentTodos.length === 0 && <p className="text-sm text-slate-400">Geen urgente taken</p>}
+            {urgentTodos.length === 0 && <p className="text-sm text-slate-400">{t('noUrgentTasks')}</p>}
           </div>
         </div>
       </div>

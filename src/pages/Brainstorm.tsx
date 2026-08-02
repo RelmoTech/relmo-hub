@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
+import { useLanguage } from '@/hooks/useLanguage'
 
 interface Note {
   id: string
@@ -17,17 +18,18 @@ export function Brainstorm() {
   const [notes, setNotes] = useState<Note[]>([])
   const [activeNote, setActiveNote] = useState<Note | null>(null)
   const [saveTimer, setSaveTimer] = useState<ReturnType<typeof setTimeout> | null>(null)
+  const { t } = useLanguage()
 
-  const fetch = useCallback(async () => {
+  const fetchNotes = useCallback(async () => {
     const { data } = await supabase.from('notes').select('*').order('updated_at', { ascending: false })
     setNotes(data || [])
   }, [])
 
-  useEffect(() => { fetch() }, [fetch])
+  useEffect(() => { fetchNotes() }, [fetchNotes])
 
   const createNote = async () => {
     await supabase.from('notes').insert({
-      title: 'Nieuwe notitie',
+      title: t('newNote'),
       content: '',
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
     })
@@ -62,17 +64,16 @@ export function Brainstorm() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Brainstorm</h1>
+        <h1 className="text-2xl font-bold">{t('brainstorm')}</h1>
         <button
           onClick={createNote}
           className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg text-sm"
         >
-          <Plus size={16} /> Nieuwe notitie
+          <Plus size={16} /> {t('newNote')}
         </button>
       </div>
 
       <div className="grid md:grid-cols-[300px_1fr] gap-4">
-        {/* Note list */}
         <div className="space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
           {notes.map(n => (
             <div
@@ -87,7 +88,7 @@ export function Brainstorm() {
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: n.color }} />
-                  <span className="text-sm font-medium truncate">{n.title || 'Zonder titel'}</span>
+                  <span className="text-sm font-medium truncate">{n.title || t('untitled')}</span>
                 </div>
                 <button
                   onClick={e => { e.stopPropagation(); deleteNote(n.id) }}
@@ -96,18 +97,17 @@ export function Brainstorm() {
                   <Trash2 size={14} />
                 </button>
               </div>
-              <p className="text-xs text-slate-400 mt-1 truncate">{n.content || 'Geen inhoud'}</p>
+              <p className="text-xs text-slate-400 mt-1 truncate">{n.content || t('noContent')}</p>
               <p className="text-xs text-slate-400 mt-1">
                 {new Date(n.updated_at).toLocaleDateString('nl-BE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
           ))}
           {notes.length === 0 && (
-            <p className="text-center text-slate-400 py-8 text-sm">Nog geen notities</p>
+            <p className="text-center text-slate-400 py-8 text-sm">{t('noNotes')}</p>
           )}
         </div>
 
-        {/* Editor */}
         {activeNote ? (
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-4">
             <div className="flex items-center gap-3">
@@ -126,18 +126,18 @@ export function Brainstorm() {
               value={activeNote.title}
               onChange={e => updateNote('title', e.target.value)}
               className="w-full text-xl font-bold bg-transparent border-none outline-none"
-              placeholder="Titel..."
+              placeholder={t('titlePlaceholder')}
             />
             <textarea
               value={activeNote.content || ''}
               onChange={e => updateNote('content', e.target.value)}
               className="w-full bg-transparent border-none outline-none text-sm leading-relaxed resize-none min-h-[400px]"
-              placeholder="Begin met schrijven..."
+              placeholder={t('contentPlaceholder')}
             />
           </div>
         ) : (
           <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 p-12 flex items-center justify-center">
-            <p className="text-slate-400 text-sm">Selecteer een notitie of maak een nieuwe aan</p>
+            <p className="text-slate-400 text-sm">{t('noNoteSelected')}</p>
           </div>
         )}
       </div>

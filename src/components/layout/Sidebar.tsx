@@ -2,23 +2,24 @@ import { NavLink } from 'react-router-dom'
 import { LayoutDashboard, Wallet, FolderKanban, CheckSquare, FileText, Settings, Bot, Menu, X, Lightbulb } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-
-const links = [
-  { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/financien', icon: Wallet, label: 'Financiën' },
-  { to: '/projecten', icon: FolderKanban, label: 'Projecten' },
-  { to: '/taken', icon: CheckSquare, label: 'Taken' },
-  { to: '/facturatie', icon: FileText, label: 'Facturatie' },
-  { to: '/brainstorm', icon: Lightbulb, label: 'Brainstorm' },
-  { to: '/instellingen', icon: Settings, label: 'Instellingen' },
-]
+import { useLanguage } from '@/hooks/useLanguage'
 
 export function Sidebar() {
   const [open, setOpen] = useState(false)
+  const { t } = useLanguage()
+
+  const links = [
+    { to: '/', icon: LayoutDashboard, label: t('dashboard') },
+    { to: '/financien', icon: Wallet, label: t('financien') },
+    { to: '/projecten', icon: FolderKanban, label: t('projecten') },
+    { to: '/taken', icon: CheckSquare, label: t('taken') },
+    { to: '/facturatie', icon: FileText, label: t('facturatie') },
+    { to: '/brainstorm', icon: Lightbulb, label: t('brainstorm') },
+    { to: '/instellingen', icon: Settings, label: t('instellingen') },
+  ]
 
   return (
     <>
-      {/* Mobile bottom bar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-sidebar z-50 flex justify-around py-2 border-t border-slate-700">
         {links.slice(0, 4).map(l => (
           <NavLink
@@ -39,7 +40,6 @@ export function Sidebar() {
         </button>
       </nav>
 
-      {/* Mobile overlay */}
       {open && (
         <div className="md:hidden fixed inset-0 bg-black/50 z-50" onClick={() => setOpen(false)}>
           <div className="absolute bottom-16 left-0 right-0 bg-sidebar p-4 rounded-t-xl" onClick={e => e.stopPropagation()}>
@@ -62,7 +62,6 @@ export function Sidebar() {
         </div>
       )}
 
-      {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-60 bg-sidebar min-h-screen fixed left-0 top-0 z-40">
         <div className="flex items-center gap-2 px-5 py-5 border-b border-slate-700">
           <Bot className="text-amber-400" size={28} />
