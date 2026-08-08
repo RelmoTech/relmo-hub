@@ -196,9 +196,11 @@ export function useProspects() {
     fetch()
   }
 
-  const bulkInsert = async (rows: Partial<Prospect>[]) => {
-    await supabase.from('prospects').insert(rows)
+  const bulkInsert = async (rows: Partial<Prospect>[]): Promise<string | null> => {
+    const { error } = await supabase.from('prospects').insert(rows)
+    if (error) return error.message
     fetch()
+    return null
   }
 
   const remove = async (id: string) => {

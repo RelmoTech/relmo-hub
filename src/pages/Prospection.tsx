@@ -61,8 +61,8 @@ export function Prospection() {
       })).filter(p => p.entreprise)
 
       if (mapped.length > 0) {
-        const err = await bulkInsert(mapped)
-        if (err) {
+        const err: string | null = await bulkInsert(mapped)
+        if (err != null) {
           setImportMsg(`Fout: ${err}`)
         } else {
           setImportMsg(`${mapped.length} ${t('importSuccess')}`)
