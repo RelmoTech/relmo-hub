@@ -29,8 +29,8 @@ const emptyProspect: Partial<Prospect> = {
   info: '',
 }
 
-export function Prospection() {
-  const { prospects, upsert, bulkInsert, remove } = useProspects()
+export function Prospection({ tableName = 'prospects', title }: { tableName?: string; title?: string }) {
+  const { prospects, upsert, bulkInsert, remove } = useProspects(tableName)
   const { t } = useLanguage()
   const [modal, setModal] = useState<Partial<Prospect> | null>(null)
   const [importMsg, setImportMsg] = useState<string | null>(null)
@@ -106,7 +106,7 @@ export function Prospection() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="text-2xl font-bold">{t('prospection')}</h1>
+        <h1 className="text-2xl font-bold">{title ?? t('prospection')}</h1>
         <div className="flex gap-2">
           <input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" onChange={handleImport} className="hidden" />
           <button

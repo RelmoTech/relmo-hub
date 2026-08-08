@@ -55,6 +55,7 @@ export default function App() {
               <Route path="/facturatie" element={<Facturatie />} />
               <Route path="/brainstorm" element={<Brainstorm />} />
             <Route path="/prospection" element={<Prospection />} />
+              <Route path="/prospection-maroc" element={<Prospection tableName="prospects_maroc" title="Prospection Maroc" />} />
               <Route path="/instellingen" element={<Instellingen />} />
             </Route>
           </Routes>

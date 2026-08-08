@@ -177,34 +177,34 @@ export function useCategories() {
   return { categories, upsert, remove, refetch: fetch }
 }
 
-export function useProspects() {
+export function useProspects(tableName: string = 'prospects') {
   const [prospects, setProspects] = useState<Prospect[]>([])
 
   const fetch = useCallback(async () => {
-    const { data } = await supabase.from('prospects').select('*').order('created_at', { ascending: false })
+    const { data } = await supabase.from(tableName).select('*').order('created_at', { ascending: false })
     setProspects(data || [])
-  }, [])
+  }, [tableName])
 
   useEffect(() => { fetch() }, [fetch])
 
   const upsert = async (p: Partial<Prospect>) => {
     if (p.id) {
-      await supabase.from('prospects').update(p).eq('id', p.id)
+      await supabase.from(tableName).update(p).eq('id', p.id)
     } else {
-      await supabase.from('prospects').insert(p)
+      await supabase.from(tableName).insert(p)
     }
     fetch()
   }
 
   const bulkInsert = async (rows: Partial<Prospect>[]): Promise<string | null> => {
-    const { error } = await supabase.from('prospects').insert(rows)
+    const { error } = await supabase.from(tableName).insert(rows)
     if (error) return error.message
     fetch()
     return null
   }
 
   const remove = async (id: string) => {
-    await supabase.from('prospects').delete().eq('id', id)
+    await supabase.from(tableName).delete().eq('id', id)
     fetch()
   }
 

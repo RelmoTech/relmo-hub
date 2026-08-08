@@ -16,6 +16,7 @@ export function Sidebar() {
     { to: '/facturatie', icon: FileText, label: t('facturatie') },
     { to: '/brainstorm', icon: Lightbulb, label: t('brainstorm') },
     { to: '/prospection', icon: Target, label: t('prospection') },
+    { to: '/prospection-maroc', icon: Target, label: 'Prospection Maroc' },
     { to: '/instellingen', icon: Settings, label: t('instellingen') },
   ]
 
