@@ -50,6 +50,21 @@ export interface SupplierCategory {
   updated_at: string
 }
 
+export interface Prospect {
+  id: string
+  entreprise: string
+  secteur: string | null
+  canal_utilise: string | null
+  statut: string | null
+  date_envoi: string | null
+  j3: string | null
+  j7: string | null
+  j30: string | null
+  j60: string | null
+  info: string | null
+  created_at: string
+}
+
 export interface FixedCostTemplate {
   id: string
   description: string

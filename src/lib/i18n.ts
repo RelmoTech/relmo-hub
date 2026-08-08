@@ -182,6 +182,20 @@ export const translations = {
     invoiceTitle: 'FACTUUR',
     vatLabel: 'BTW',
 
+    // Prospection
+    prospection: 'Prospectie',
+    newProspect: 'Nieuwe prospect',
+    importExcel: 'Importeer Excel',
+    entreprise: 'Bedrijf',
+    secteur: 'Sector',
+    canalUtilise: 'Kanaal',
+    statut: 'Status',
+    dateEnvoi: 'Verzenddatum',
+    info: 'Info',
+    noProspects: 'Nog geen prospects',
+    importSuccess: 'geïmporteerd',
+    editProspect: 'Prospect bewerken',
+
     // Login
     loginTitle: 'Log in om verder te gaan',
     email: 'E-mailadres',
@@ -371,6 +385,20 @@ export const translations = {
     markPaid: 'Payée',
     invoiceTitle: 'FACTURE',
     vatLabel: 'TVA',
+
+    // Prospection
+    prospection: 'Prospection',
+    newProspect: 'Nouveau prospect',
+    importExcel: 'Importer Excel',
+    entreprise: 'Entreprise',
+    secteur: 'Secteur',
+    canalUtilise: 'Canal utilisé',
+    statut: 'Statut',
+    dateEnvoi: "Date d'envoi",
+    info: 'Info',
+    noProspects: 'Aucun prospect',
+    importSuccess: 'importés',
+    editProspect: 'Modifier prospect',
 
     // Login
     loginTitle: 'Connectez-vous pour continuer',

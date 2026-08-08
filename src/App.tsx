@@ -10,6 +10,7 @@ import { Taken } from '@/pages/Taken'
 import { Facturatie } from '@/pages/Facturatie'
 import { Instellingen } from '@/pages/Instellingen'
 import { Brainstorm } from '@/pages/Brainstorm'
+import { Prospection } from '@/pages/Prospection'
 import { Login } from '@/pages/Login'
 import { ActivityFilterContext } from '@/hooks/useActivityFilter'
 import { LanguageContext } from '@/hooks/useLanguage'
@@ -53,6 +54,7 @@ export default function App() {
               <Route path="/taken" element={<Taken />} />
               <Route path="/facturatie" element={<Facturatie />} />
               <Route path="/brainstorm" element={<Brainstorm />} />
+            <Route path="/prospection" element={<Prospection />} />
               <Route path="/instellingen" element={<Instellingen />} />
             </Route>
           </Routes>

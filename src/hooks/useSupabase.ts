@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate } from '@/types'
+import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate, Prospect } from '@/types'
 
 export function useActivities() {
   const [activities, setActivities] = useState<Activity[]>([])
@@ -175,6 +175,38 @@ export function useCategories() {
   }
 
   return { categories, upsert, remove, refetch: fetch }
+}
+
+export function useProspects() {
+  const [prospects, setProspects] = useState<Prospect[]>([])
+
+  const fetch = useCallback(async () => {
+    const { data } = await supabase.from('prospects').select('*').order('created_at', { ascending: false })
+    setProspects(data || [])
+  }, [])
+
+  useEffect(() => { fetch() }, [fetch])
+
+  const upsert = async (p: Partial<Prospect>) => {
+    if (p.id) {
+      await supabase.from('prospects').update(p).eq('id', p.id)
+    } else {
+      await supabase.from('prospects').insert(p)
+    }
+    fetch()
+  }
+
+  const bulkInsert = async (rows: Partial<Prospect>[]) => {
+    await supabase.from('prospects').insert(rows)
+    fetch()
+  }
+
+  const remove = async (id: string) => {
+    await supabase.from('prospects').delete().eq('id', id)
+    fetch()
+  }
+
+  return { prospects, upsert, bulkInsert, remove, refetch: fetch }
 }
 
 export function useFixedCostTemplates() {
