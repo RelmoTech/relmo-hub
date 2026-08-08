@@ -145,7 +145,6 @@ export const translations = {
     vatNumber: 'BTW-nummer',
 
     // Financiën extra
-    overview: 'Overzicht',
     week: 'Week',
     year: 'Jaar',
     noData: 'Geen data',
@@ -171,7 +170,6 @@ export const translations = {
     // Facturatie extra
     invoice: 'Factuur',
     invoiceNr: 'Nr',
-    client: 'Klant',
     actions: 'Acties',
     close: 'Sluiten',
     printPdf: 'PDF / Print',
@@ -349,7 +347,6 @@ export const translations = {
     vatNumber: 'Numéro TVA',
 
     // Financiën extra
-    overview: 'Aperçu',
     week: 'Semaine',
     year: 'Année',
     noData: 'Aucune donnée',
@@ -375,7 +372,6 @@ export const translations = {
     // Facturatie extra
     invoice: 'Facture',
     invoiceNr: 'N°',
-    client: 'Client',
     actions: 'Actions',
     close: 'Fermer',
     printPdf: 'PDF / Imprimer',
