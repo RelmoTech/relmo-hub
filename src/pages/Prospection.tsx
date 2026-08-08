@@ -37,6 +37,18 @@ export function Prospection() {
   const [filterStatut, setFilterStatut] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
 
+  const excelDateToISO = (val: unknown): string | null => {
+    if (!val) return null
+    const n = Number(val)
+    if (!isNaN(n) && n > 1000) {
+      const date = new Date(Math.round((n - 25569) * 86400 * 1000))
+      return date.toISOString().split('T')[0]
+    }
+    const s = String(val).trim()
+    if (!s) return null
+    return s
+  }
+
   const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -45,19 +57,19 @@ export function Prospection() {
       const data = new Uint8Array(ev.target?.result as ArrayBuffer)
       const wb = XLSX.read(data, { type: 'array' })
       const ws = wb.Sheets[wb.SheetNames[0]]
-      const rows: Record<string, string>[] = XLSX.utils.sheet_to_json(ws, { defval: '' })
+      const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws, { defval: '' })
 
       const mapped: Partial<Prospect>[] = rows.map(r => ({
-        entreprise: r['Entreprise'] || r['entreprise'] || r['Bedrijf'] || '',
-        secteur: r['Secteur'] || r['secteur'] || r['Sector'] || '',
-        canal_utilise: r['Canal utilisé'] || r['Canal utilise'] || r['Kanaal'] || '',
-        statut: r['Statut'] || r['statut'] || r['Status'] || '',
-        date_envoi: r['Date d\'envoi'] || r['Date envoi'] || r['Verzenddatum'] || null,
-        j3: r['J+3'] || r['j3'] || '',
-        j7: r['J+7'] || r['j7'] || '',
-        j30: r['J+30'] || r['j30'] || '',
-        j60: r['J+60'] || r['j60'] || '',
-        info: r['Info'] || r['info'] || '',
+        entreprise: String(r['Entreprise'] || r['entreprise'] || r['Bedrijf'] || ''),
+        secteur: String(r['Secteur'] || r['secteur'] || r['Sector'] || '') || null,
+        canal_utilise: String(r['Canal utilisé'] || r['Canal utilise'] || r['Kanaal'] || '') || null,
+        statut: String(r['Statut'] || r['statut'] || r['Status'] || '') || null,
+        date_envoi: excelDateToISO(r['Date d\'envoi'] ?? r['Date envoi'] ?? r['Verzenddatum']),
+        j3: String(r['J+3'] || r['j3'] || '') || null,
+        j7: String(r['J+7'] || r['j7'] || '') || null,
+        j30: String(r['J+30'] || r['j30'] || '') || null,
+        j60: String(r['J+60'] || r['j60'] || '') || null,
+        info: String(r['Info'] || r['info'] || '') || null,
       })).filter(p => p.entreprise)
 
       if (mapped.length > 0) {
