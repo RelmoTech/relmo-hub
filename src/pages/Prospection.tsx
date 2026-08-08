@@ -52,7 +52,7 @@ export function Prospection() {
         secteur: r['Secteur'] || r['secteur'] || r['Sector'] || '',
         canal_utilise: r['Canal utilisé'] || r['Canal utilise'] || r['Kanaal'] || '',
         statut: r['Statut'] || r['statut'] || r['Status'] || '',
-        date_envoi: r['Date d\'envoi'] || r['Date envoi'] || r['Verzenddatum'] || '',
+        date_envoi: r['Date d\'envoi'] || r['Date envoi'] || r['Verzenddatum'] || null,
         j3: r['J+3'] || r['j3'] || '',
         j7: r['J+7'] || r['j7'] || '',
         j30: r['J+30'] || r['j30'] || '',
@@ -61,9 +61,13 @@ export function Prospection() {
       })).filter(p => p.entreprise)
 
       if (mapped.length > 0) {
-        await bulkInsert(mapped)
-        setImportMsg(`${mapped.length} ${t('importSuccess')}`)
-        setTimeout(() => setImportMsg(null), 3000)
+        const err = await bulkInsert(mapped)
+        if (err) {
+          setImportMsg(`Fout: ${err}`)
+        } else {
+          setImportMsg(`${mapped.length} ${t('importSuccess')}`)
+          setTimeout(() => setImportMsg(null), 3000)
+        }
       }
     }
     reader.readAsArrayBuffer(file)
