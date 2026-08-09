@@ -11,6 +11,7 @@ import { Facturatie } from '@/pages/Facturatie'
 import { Instellingen } from '@/pages/Instellingen'
 import { Brainstorm } from '@/pages/Brainstorm'
 import { Prospection } from '@/pages/Prospection'
+import { ReservationRobot } from '@/pages/ReservationRobot'
 import { Login } from '@/pages/Login'
 import { ActivityFilterContext } from '@/hooks/useActivityFilter'
 import { LanguageContext } from '@/hooks/useLanguage'
@@ -56,6 +57,7 @@ export default function App() {
               <Route path="/brainstorm" element={<Brainstorm />} />
             <Route path="/prospection" element={<Prospection />} />
               <Route path="/prospection-maroc" element={<Prospection tableName="prospects_maroc" title="Prospection Maroc" />} />
+              <Route path="/reservations" element={<ReservationRobot />} />
               <Route path="/instellingen" element={<Instellingen />} />
             </Route>
           </Routes>

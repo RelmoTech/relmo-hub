@@ -65,6 +65,17 @@ export interface Prospect {
   created_at: string
 }
 
+export interface Reservation {
+  id: string
+  klant: string
+  event: string | null
+  datum: string
+  info: string | null
+  email: string | null
+  tel: string | null
+  created_at: string
+}
+
 export interface FixedCostTemplate {
   id: string
   description: string

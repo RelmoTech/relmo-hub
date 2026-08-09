@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate, Prospect } from '@/types'
+import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate, Prospect, Reservation } from '@/types'
 
 export function useActivities() {
   const [activities, setActivities] = useState<Activity[]>([])
@@ -209,6 +209,33 @@ export function useProspects(tableName: string = 'prospects') {
   }
 
   return { prospects, upsert, bulkInsert, remove, refetch: fetch }
+}
+
+export function useReservations() {
+  const [reservations, setReservations] = useState<Reservation[]>([])
+
+  const fetch = useCallback(async () => {
+    const { data } = await supabase.from('reservations').select('*').order('datum', { ascending: true })
+    setReservations(data || [])
+  }, [])
+
+  useEffect(() => { fetch() }, [fetch])
+
+  const upsert = async (r: Partial<Reservation>) => {
+    if (r.id) {
+      await supabase.from('reservations').update(r).eq('id', r.id)
+    } else {
+      await supabase.from('reservations').insert(r)
+    }
+    fetch()
+  }
+
+  const remove = async (id: string) => {
+    await supabase.from('reservations').delete().eq('id', id)
+    fetch()
+  }
+
+  return { reservations, upsert, remove, refetch: fetch }
 }
 
 export function useFixedCostTemplates() {

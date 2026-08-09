@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Wallet, FolderKanban, CheckSquare, FileText, Settings, Bot, Menu, X, Lightbulb, Target } from 'lucide-react'
+import { LayoutDashboard, Wallet, FolderKanban, CheckSquare, FileText, Settings, Bot, Menu, X, Lightbulb, Target, CalendarDays } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/hooks/useLanguage'
@@ -17,6 +17,7 @@ export function Sidebar() {
     { to: '/brainstorm', icon: Lightbulb, label: t('brainstorm') },
     { to: '/prospection', icon: Target, label: t('prospection') },
     { to: '/prospection-maroc', icon: Target, label: 'Prospection Maroc' },
+    { to: '/reservations', icon: CalendarDays, label: 'Reservation Robot' },
     { to: '/instellingen', icon: Settings, label: t('instellingen') },
   ]
 
