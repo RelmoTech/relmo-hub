@@ -181,7 +181,7 @@ export function useProspects(tableName: string = 'prospects') {
   const [prospects, setProspects] = useState<Prospect[]>([])
 
   const fetch = useCallback(async () => {
-    const { data } = await supabase.from(tableName).select('*').order('created_at', { ascending: false })
+    const { data } = await supabase.from(tableName).select('*').order('date_envoi', { ascending: false, nullsFirst: false })
     setProspects(data || [])
   }, [tableName])
 
