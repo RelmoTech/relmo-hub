@@ -62,6 +62,7 @@ export interface Prospect {
   j30: string | null
   j60: string | null
   info: string | null
+  reponse: 'accepté' | 'refus' | null
   created_at: string
 }
 

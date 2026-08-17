@@ -164,6 +164,7 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
               <th className="px-3 py-3 font-semibold text-slate-600 dark:text-slate-300">J+30</th>
               <th className="px-3 py-3 font-semibold text-slate-600 dark:text-slate-300">J+60</th>
               <th className="px-3 py-3 font-semibold text-slate-600 dark:text-slate-300">{t('info')}</th>
+              <th className="px-3 py-3 font-semibold text-slate-600 dark:text-slate-300">Réponse</th>
               <th className="px-3 py-3"></th>
             </tr>
           </thead>
@@ -184,6 +185,13 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
                 <td className="px-3 py-2 text-slate-500 max-w-[80px] truncate">{p.j30 || '-'}</td>
                 <td className="px-3 py-2 text-slate-500 max-w-[80px] truncate">{p.j60 || '-'}</td>
                 <td className="px-3 py-2 text-slate-500 max-w-[150px] truncate">{p.info || '-'}</td>
+                <td className="px-3 py-2">
+                  {p.reponse ? (
+                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${p.reponse === 'accepté' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+                      {p.reponse === 'accepté' ? '✓ Accepté' : '✗ Refus'}
+                    </span>
+                  ) : '-'}
+                </td>
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
                     <button onClick={() => setModal(p)} className="p-1 text-slate-400 hover:text-blue-500"><Edit2 size={14} /></button>
@@ -245,6 +253,25 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
             <div>
               <label className="text-xs text-slate-500 block mb-1">{t('info')}</label>
               <textarea value={modal.info || ''} onChange={e => setModal({ ...modal, info: e.target.value })} rows={3} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm resize-none" />
+            </div>
+            <div>
+              <label className="text-xs text-slate-500 block mb-1">Réponse</label>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setModal({ ...modal, reponse: modal.reponse === 'accepté' ? null : 'accepté' })}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${modal.reponse === 'accepté' ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-emerald-300 text-emerald-600 dark:border-emerald-700 dark:text-emerald-400'}`}
+                >
+                  ✓ Accepté
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setModal({ ...modal, reponse: modal.reponse === 'refus' ? null : 'refus' })}
+                  className={`flex-1 py-2 rounded-lg text-sm font-medium border-2 transition-colors ${modal.reponse === 'refus' ? 'bg-red-500 border-red-500 text-white' : 'border-red-300 text-red-600 dark:border-red-700 dark:text-red-400'}`}
+                >
+                  ✗ Refus
+                </button>
+              </div>
             </div>
 
             <div className="flex gap-2">
