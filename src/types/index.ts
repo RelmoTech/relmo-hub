@@ -64,6 +64,8 @@ export interface Prospect {
   info: string | null
   reponse: 'accepté' | 'refus' | null
   created_at: string
+  archived_at: string | null
+  archive_reason: string | null
 }
 
 export interface Reservation {

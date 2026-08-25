@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Plus, X, Upload, Trash2, Edit2 } from 'lucide-react'
+import { Plus, X, Upload, Trash2, Edit2, Archive, RotateCcw } from 'lucide-react'
 import * as XLSX from 'xlsx'
 import { useProspects } from '@/hooks/useSupabase'
 import { useLanguage } from '@/hooks/useLanguage'
@@ -35,7 +35,16 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
   const [modal, setModal] = useState<Partial<Prospect> | null>(null)
   const [importMsg, setImportMsg] = useState<string | null>(null)
   const [filterStatut, setFilterStatut] = useState('')
+  const [showArchived, setShowArchived] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  const archive = async (p: Prospect) => {
+    await upsert({ id: p.id, archived_at: new Date().toISOString(), archive_reason: 'Manueel gearchiveerd' })
+  }
+
+  const unarchive = async (p: Prospect) => {
+    await upsert({ id: p.id, archived_at: null, archive_reason: null })
+  }
 
   const excelDateToISO = (val: unknown): string | null => {
     if (!val) return null
@@ -92,11 +101,16 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
     setModal(null)
   }
 
-  const filtered = filterStatut
-    ? prospects.filter(p => p.statut?.toLowerCase() === filterStatut.toLowerCase())
-    : prospects
+  const activeProspects = prospects.filter(p => !p.archived_at)
+  const archivedProspects = prospects.filter(p => p.archived_at)
 
-  const statuts = [...new Set(prospects.map(p => p.statut).filter(Boolean))] as string[]
+  const filtered = showArchived
+    ? archivedProspects
+    : filterStatut
+      ? activeProspects.filter(p => p.statut?.toLowerCase() === filterStatut.toLowerCase())
+      : activeProspects
+
+  const statuts = [...new Set(activeProspects.map(p => p.statut).filter(Boolean))] as string[]
 
   const statusColor = (s: string | null) => {
     if (!s) return 'bg-slate-100 text-slate-500'
@@ -131,22 +145,30 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
       )}
 
       {/* Status filter */}
-      <div className="flex gap-2 flex-wrap">
-        <button
-          onClick={() => setFilterStatut('')}
-          className={`px-3 py-1.5 text-xs rounded-full ${!filterStatut ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
-        >
-          {t('all')}
-        </button>
-        {statuts.map(s => (
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
-            key={s}
-            onClick={() => setFilterStatut(s === filterStatut ? '' : s)}
-            className={`px-3 py-1.5 text-xs rounded-full ${filterStatut === s ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+            onClick={() => { setFilterStatut(''); setShowArchived(false) }}
+            className={`px-3 py-1.5 text-xs rounded-full ${!filterStatut && !showArchived ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
           >
-            {s}
+            {t('all')}
           </button>
-        ))}
+          {statuts.map(s => (
+            <button
+              key={s}
+              onClick={() => { setFilterStatut(s === filterStatut ? '' : s); setShowArchived(false) }}
+              className={`px-3 py-1.5 text-xs rounded-full ${!showArchived && filterStatut === s ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => setShowArchived(!showArchived)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-full border ${showArchived ? 'bg-amber-500 border-amber-500 text-white' : 'border-slate-200 dark:border-slate-700 text-slate-500 hover:border-amber-400 hover:text-amber-600'}`}
+        >
+          <Archive size={12} /> Archief ({archivedProspects.length})
+        </button>
       </div>
 
       {/* Table */}
@@ -171,7 +193,12 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
           <tbody>
             {filtered.map(p => (
               <tr key={p.id} className="border-b dark:border-slate-700/50 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                <td className="px-3 py-2 font-medium">{p.entreprise}</td>
+                <td className="px-3 py-2 font-medium">
+                  {p.entreprise}
+                  {p.archived_at && p.archive_reason && (
+                    <div className="text-[11px] font-normal text-amber-600 dark:text-amber-500 mt-0.5">{p.archive_reason}</div>
+                  )}
+                </td>
                 <td className="px-3 py-2 text-slate-500">{p.secteur || '-'}</td>
                 <td className="px-3 py-2 text-slate-500">{p.canal_utilise || '-'}</td>
                 <td className="px-3 py-2">
@@ -195,6 +222,11 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
                     <button onClick={() => setModal(p)} className="p-1 text-slate-400 hover:text-blue-500"><Edit2 size={14} /></button>
+                    {p.archived_at ? (
+                      <button onClick={() => unarchive(p)} title="Herstellen" className="p-1 text-slate-400 hover:text-emerald-500"><RotateCcw size={14} /></button>
+                    ) : (
+                      <button onClick={() => archive(p)} title="Archiveren" className="p-1 text-slate-400 hover:text-amber-500"><Archive size={14} /></button>
+                    )}
                     <button onClick={() => remove(p.id)} className="p-1 text-slate-400 hover:text-red-500"><Trash2 size={14} /></button>
                   </div>
                 </td>
@@ -207,7 +239,11 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
         )}
       </div>
 
-      <div className="text-xs text-slate-400">{filtered.length} / {prospects.length} prospects</div>
+      <div className="text-xs text-slate-400">
+        {showArchived
+          ? `${filtered.length} gearchiveerd`
+          : `${filtered.length} / ${activeProspects.length} actieve prospects`}
+      </div>
 
       {/* Modal */}
       {modal && (
