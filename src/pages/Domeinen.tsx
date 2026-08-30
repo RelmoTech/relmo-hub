@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react'
 import { Plus, X, Trash2, Edit2, AlertTriangle, CheckCircle, Clock } from 'lucide-react'
-import { useReservations } from '@/hooks/useSupabase'
 import { supabase } from '@/lib/supabase'
 import { useEffect, useCallback } from 'react'
 
