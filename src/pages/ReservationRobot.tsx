@@ -117,7 +117,7 @@ export function ReservationRobot() {
               <BarChart data={monthlyStats}>
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={v => `€${v}`} />
-                <Tooltip formatter={(v: number) => fmt(v)} labelFormatter={l => `${l}`} />
+                <Tooltip formatter={(v: unknown) => fmt(Number(v))} labelFormatter={(l: unknown) => `${l}`} />
                 <Bar dataKey="inkomen" fill="#3B82F6" radius={[4,4,0,0]} name="Inkomsten" />
               </BarChart>
             </ResponsiveContainer>

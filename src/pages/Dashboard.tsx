@@ -77,7 +77,7 @@ export function Dashboard() {
     { label: `${t('income')} ${now.getFullYear()}`, value: income, icon: TrendingUp, color: 'text-emerald-500' },
     { label: `${t('expenses')} ${now.getFullYear()}`, value: expenses, icon: TrendingDown, color: 'text-red-500' },
     { label: t('net'), value: net, icon: Wallet, color: net >= 0 ? 'text-emerald-500' : 'text-red-500' },
-    { label: 'Robot verhuur deze maand', value: robotIncome, icon: FileText, color: 'text-blue-500' },
+    { label: 'Robot verhuur deze maand', value: robotIncome, icon: FileText, color: 'text-blue-500', isCount: false },
   ]
 
   return (
