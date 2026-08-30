@@ -88,6 +88,9 @@ export interface Reservation {
   info: string | null
   email: string | null
   tel: string | null
+  aantal_dagen: number | null
+  aantal_uren: number | null
+  prijs: number | null
   created_at: string
 }
 

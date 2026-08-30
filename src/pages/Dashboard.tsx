@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { TrendingUp, TrendingDown, Wallet, FileText, AlertCircle, AlertTriangle } from 'lucide-react'
-import { useTransactions, useProjects, useTodos, useInvoices, useDomeinen } from '@/hooks/useSupabase'
+import { useTransactions, useProjects, useTodos, useReservations, useDomeinen } from '@/hooks/useSupabase'
 import { useActivityFilter } from '@/hooks/useActivityFilter'
 import { useLanguage } from '@/hooks/useLanguage'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -14,7 +14,7 @@ export function Dashboard() {
   const { transactions } = useTransactions(selectedActivityId)
   const { projects } = useProjects(selectedActivityId)
   const { todos } = useTodos(selectedActivityId)
-  const { invoices } = useInvoices(selectedActivityId)
+  const { reservations } = useReservations()
   const { t, lang } = useLanguage()
   const locale = lang === 'fr' ? fr : nl
 
@@ -31,7 +31,10 @@ export function Dashboard() {
   const income = thisYear.filter(t => t.amount > 0).reduce((s, t) => s + t.amount, 0)
   const expenses = thisYear.filter(t => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0)
   const net = income - expenses
-  const openInvoices = invoices.filter(i => i.status !== 'betaald').length
+  const thisMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  const robotIncome = reservations
+    .filter(r => r.datum?.startsWith(thisMonthPrefix))
+    .reduce((s, r) => s + (r.prijs || 0), 0)
 
   const chartData = useMemo(() => {
     return Array.from({ length: 6 }, (_, i) => {
@@ -74,7 +77,7 @@ export function Dashboard() {
     { label: `${t('income')} ${now.getFullYear()}`, value: income, icon: TrendingUp, color: 'text-emerald-500' },
     { label: `${t('expenses')} ${now.getFullYear()}`, value: expenses, icon: TrendingDown, color: 'text-red-500' },
     { label: t('net'), value: net, icon: Wallet, color: net >= 0 ? 'text-emerald-500' : 'text-red-500' },
-    { label: t('openInvoices'), value: openInvoices, icon: FileText, color: 'text-blue-500', isCount: true },
+    { label: 'Robot verhuur deze maand', value: robotIncome, icon: FileText, color: 'text-blue-500' },
   ]
 
   return (
