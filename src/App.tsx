@@ -7,8 +7,8 @@ import { Dashboard } from '@/pages/Dashboard'
 import { Financien } from '@/pages/Financien'
 import { Projecten } from '@/pages/Projecten'
 import { Taken } from '@/pages/Taken'
-import { Facturatie } from '@/pages/Facturatie'
 import { Instellingen } from '@/pages/Instellingen'
+import { Domeinen } from '@/pages/Domeinen'
 import { Brainstorm } from '@/pages/Brainstorm'
 import { Prospection } from '@/pages/Prospection'
 import { ReservationRobot } from '@/pages/ReservationRobot'
@@ -53,7 +53,7 @@ export default function App() {
               <Route path="/financien" element={<Financien />} />
               <Route path="/projecten" element={<Projecten />} />
               <Route path="/taken" element={<Taken />} />
-              <Route path="/facturatie" element={<Facturatie />} />
+              <Route path="/domeinen" element={<Domeinen />} />
               <Route path="/brainstorm" element={<Brainstorm />} />
             <Route path="/prospection" element={<Prospection />} />
               <Route path="/prospection-maroc" element={<Prospection tableName="prospects_maroc" title="Prospection Maroc" />} />

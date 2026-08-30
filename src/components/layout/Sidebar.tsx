@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { LayoutDashboard, Wallet, FolderKanban, CheckSquare, FileText, Settings, Bot, Menu, X, Lightbulb, Target, CalendarDays } from 'lucide-react'
+import { LayoutDashboard, Wallet, FolderKanban, CheckSquare, Settings, Bot, Menu, X, Lightbulb, Target, CalendarDays, Globe } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { useLanguage } from '@/hooks/useLanguage'
@@ -13,7 +13,7 @@ export function Sidebar() {
     { to: '/financien', icon: Wallet, label: t('financien') },
     { to: '/projecten', icon: FolderKanban, label: t('projecten') },
     { to: '/taken', icon: CheckSquare, label: t('taken') },
-    { to: '/facturatie', icon: FileText, label: t('facturatie') },
+    { to: '/domeinen', icon: Globe, label: 'Domeinen & Licenties' },
     { to: '/brainstorm', icon: Lightbulb, label: t('brainstorm') },
     { to: '/prospection', icon: Target, label: t('prospection') },
     { to: '/prospection-maroc', icon: Target, label: 'Prospection Maroc' },
