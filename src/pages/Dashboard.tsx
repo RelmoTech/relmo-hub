@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, TrendingDown, Wallet, FileText, AlertCircle } from 'lucide-react'
-import { useTransactions, useProjects, useTodos, useInvoices } from '@/hooks/useSupabase'
+import { TrendingUp, TrendingDown, Wallet, FileText, AlertCircle, AlertTriangle } from 'lucide-react'
+import { useTransactions, useProjects, useTodos, useInvoices, useDomeinen } from '@/hooks/useSupabase'
 import { useActivityFilter } from '@/hooks/useActivityFilter'
 import { useLanguage } from '@/hooks/useLanguage'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -57,6 +57,16 @@ export function Dashboard() {
       .slice(0, 5)
   }, [todos, now])
 
+  const { domeinen } = useDomeinen()
+  const expiringSoon = useMemo(() => {
+    const today = new Date().setHours(0,0,0,0)
+    return domeinen.filter(d => {
+      if (!d.actief) return false
+      const days = Math.ceil((new Date(d.vervaldatum).getTime() - today) / 86400000)
+      return days <= 60
+    }).sort((a, b) => a.vervaldatum.localeCompare(b.vervaldatum))
+  }, [domeinen])
+
   const activeProjects = projects.filter(p => p.status === 'actief').slice(0, 5)
   const recentTx = transactions.slice(0, 5)
 
@@ -70,6 +80,24 @@ export function Dashboard() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold">{t('dashboard')}</h1>
+
+      {expiringSoon.length > 0 && (
+        <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4">
+          <div className="flex items-center gap-2 font-semibold text-amber-700 dark:text-amber-400 mb-2 text-sm">
+            <AlertTriangle size={15} /> {expiringSoon.length} domein{expiringSoon.length > 1 ? 'en' : ''} vervalt binnenkort
+          </div>
+          <div className="flex flex-wrap gap-x-6 gap-y-1">
+            {expiringSoon.map(d => {
+              const days = Math.ceil((new Date(d.vervaldatum).getTime() - new Date().setHours(0,0,0,0)) / 86400000)
+              return (
+                <span key={d.id} className={`text-xs font-medium ${days <= 30 ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                  {d.naam} — {days}d ({d.vervaldatum})
+                </span>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {cards.map(c => (

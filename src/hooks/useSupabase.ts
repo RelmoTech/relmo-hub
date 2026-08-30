@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate, Prospect, Reservation } from '@/types'
+import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate, Prospect, Reservation, Domein } from '@/types'
 
 export function useActivities() {
   const [activities, setActivities] = useState<Activity[]>([])
@@ -209,6 +209,33 @@ export function useProspects(tableName: string = 'prospects') {
   }
 
   return { prospects, upsert, bulkInsert, remove, refetch: fetch }
+}
+
+export function useDomeinen() {
+  const [domeinen, setDomeinen] = useState<Domein[]>([])
+
+  const fetch = useCallback(async () => {
+    const { data } = await supabase.from('domeinen').select('*').order('vervaldatum', { ascending: true })
+    setDomeinen(data || [])
+  }, [])
+
+  useEffect(() => { fetch() }, [fetch])
+
+  const upsert = async (d: Partial<Domein>) => {
+    if (d.id) {
+      await supabase.from('domeinen').update(d).eq('id', d.id)
+    } else {
+      await supabase.from('domeinen').insert(d)
+    }
+    fetch()
+  }
+
+  const remove = async (id: string) => {
+    await supabase.from('domeinen').delete().eq('id', id)
+    fetch()
+  }
+
+  return { domeinen, upsert, remove }
 }
 
 export function useReservations() {

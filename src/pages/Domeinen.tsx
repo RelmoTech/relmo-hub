@@ -1,46 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Plus, X, Trash2, Edit2, AlertTriangle, CheckCircle, Clock } from 'lucide-react'
-import { supabase } from '@/lib/supabase'
-import { useEffect, useCallback } from 'react'
-
-interface Domein {
-  id: string
-  naam: string
-  klant: string | null
-  type: 'domein' | 'hosting' | 'licentie' | 'ssl' | 'andere'
-  vervaldatum: string
-  prijs_jaar: number | null
-  notities: string | null
-  actief: boolean
-  created_at: string
-}
-
-function useDomeinen() {
-  const [domeinen, setDomeinen] = useState<Domein[]>([])
-
-  const fetch = useCallback(async () => {
-    const { data } = await supabase.from('domeinen').select('*').order('vervaldatum', { ascending: true })
-    setDomeinen(data || [])
-  }, [])
-
-  useEffect(() => { fetch() }, [fetch])
-
-  const upsert = async (d: Partial<Domein>) => {
-    if (d.id) {
-      await supabase.from('domeinen').update(d).eq('id', d.id)
-    } else {
-      await supabase.from('domeinen').insert(d)
-    }
-    fetch()
-  }
-
-  const remove = async (id: string) => {
-    await supabase.from('domeinen').delete().eq('id', id)
-    fetch()
-  }
-
-  return { domeinen, upsert, remove }
-}
+import { useDomeinen } from '@/hooks/useSupabase'
+import type { Domein } from '@/types'
 
 const TYPE_LABELS: Record<string, string> = {
   domein: 'Domein',

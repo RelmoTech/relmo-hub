@@ -68,6 +68,18 @@ export interface Prospect {
   archive_reason: string | null
 }
 
+export interface Domein {
+  id: string
+  naam: string
+  klant: string | null
+  type: 'domein' | 'hosting' | 'licentie' | 'ssl' | 'andere'
+  vervaldatum: string
+  prijs_jaar: number | null
+  notities: string | null
+  actief: boolean
+  created_at: string
+}
+
 export interface Reservation {
   id: string
   klant: string

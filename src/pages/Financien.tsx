@@ -137,10 +137,11 @@ export function Financien() {
     { key: 'transacties', label: t('transactions') },
   ]
 
+  const currentYear = now.getFullYear()
   const months = [
-    ['2026-01', t('jan')], ['2026-02', t('feb')], ['2026-03', t('mar')], ['2026-04', t('apr')],
-    ['2026-05', t('may')], ['2026-06', t('jun')], ['2026-07', t('jul')], ['2026-08', t('aug')],
-    ['2026-09', t('sep')], ['2026-10', t('oct')], ['2026-11', t('nov')], ['2026-12', t('dec')],
+    [`${currentYear}-01`, t('jan')], [`${currentYear}-02`, t('feb')], [`${currentYear}-03`, t('mar')], [`${currentYear}-04`, t('apr')],
+    [`${currentYear}-05`, t('may')], [`${currentYear}-06`, t('jun')], [`${currentYear}-07`, t('jul')], [`${currentYear}-08`, t('aug')],
+    [`${currentYear}-09`, t('sep')], [`${currentYear}-10`, t('oct')], [`${currentYear}-11`, t('nov')], [`${currentYear}-12`, t('dec')],
   ]
 
   const currentCategories = form.txType === 'uitgave' ? expenseCategories : incomeCategories
