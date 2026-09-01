@@ -29,12 +29,26 @@ const emptyProspect: Partial<Prospect> = {
   info: '',
 }
 
+const SECTORS = [
+  'Automotive',
+  'Exposanten',
+  'Shoppingcenter / Winkel',
+  'Rusthuizen',
+  'Fightsports',
+  'Voetbal',
+  'Fighters',
+  'Horeca',
+  'Evenementenbureaus',
+  'Andere',
+]
+
 export function Prospection({ tableName = 'prospects', title }: { tableName?: string; title?: string }) {
   const { prospects, upsert, bulkInsert, remove } = useProspects(tableName)
   const { t } = useLanguage()
   const [modal, setModal] = useState<Partial<Prospect> | null>(null)
   const [importMsg, setImportMsg] = useState<string | null>(null)
   const [filterStatut, setFilterStatut] = useState('')
+  const [filterSecteur, setFilterSecteur] = useState('')
   const [showArchived, setShowArchived] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -106,9 +120,11 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
 
   const filtered = showArchived
     ? archivedProspects
-    : filterStatut
-      ? activeProspects.filter(p => p.statut?.toLowerCase() === filterStatut.toLowerCase())
-      : activeProspects
+    : activeProspects.filter(p => {
+        if (filterStatut && p.statut?.toLowerCase() !== filterStatut.toLowerCase()) return false
+        if (filterSecteur && p.secteur?.toLowerCase() !== filterSecteur.toLowerCase()) return false
+        return true
+      })
 
   const statuts = [...new Set(activeProspects.map(p => p.statut).filter(Boolean))] as string[]
 
@@ -169,6 +185,26 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
         >
           <Archive size={12} /> Archief ({archivedProspects.length})
         </button>
+      </div>
+
+      {/* Sector filter */}
+      <div className="flex gap-2 flex-wrap">
+        <span className="text-xs text-slate-400 self-center pr-1">Sector:</span>
+        <button
+          onClick={() => setFilterSecteur('')}
+          className={`px-3 py-1.5 text-xs rounded-full ${!filterSecteur ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+        >
+          Alle
+        </button>
+        {SECTORS.map(s => (
+          <button
+            key={s}
+            onClick={() => setFilterSecteur(s === filterSecteur ? '' : s)}
+            className={`px-3 py-1.5 text-xs rounded-full ${filterSecteur === s ? 'bg-blue-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'}`}
+          >
+            {s}
+          </button>
+        ))}
       </div>
 
       {/* Table */}
@@ -261,7 +297,10 @@ export function Prospection({ tableName = 'prospects', title }: { tableName?: st
               </div>
               <div>
                 <label className="text-xs text-slate-500 block mb-1">{t('secteur')}</label>
-                <input value={modal.secteur || ''} onChange={e => setModal({ ...modal, secteur: e.target.value })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" />
+                <input list="sectors-list" value={modal.secteur || ''} onChange={e => setModal({ ...modal, secteur: e.target.value })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Kies of typ sector..." />
+                <datalist id="sectors-list">
+                  {SECTORS.map(s => <option key={s} value={s} />)}
+                </datalist>
               </div>
               <div>
                 <label className="text-xs text-slate-500 block mb-1">{t('canalUtilise')}</label>
