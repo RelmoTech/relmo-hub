@@ -19,6 +19,7 @@ export function Taken() {
   const [newPriority, setNewPriority] = useState<Todo['priority']>('normaal')
   const [newProject, setNewProject] = useState('')
   const [newActivity, setNewActivity] = useState('')
+  const [newDate, setNewDate] = useState('')
   const [modal, setModal] = useState<Todo | null>(null)
 
   const groups = useMemo(() => {
@@ -51,8 +52,10 @@ export function Taken() {
       priority: newPriority,
       project_id: newProject || null,
       activity_id: newActivity || selectedActivityId || null,
+      due_date: newDate || null,
     })
     setNewTitle('')
+    setNewDate('')
   }
 
   const handleSave = async () => {
@@ -90,6 +93,7 @@ export function Taken() {
             <option value="">{t('noActivity')}</option>
             {activities.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
+          <input type="date" value={newDate} onChange={e => setNewDate(e.target.value)} className="px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-xs" />
           <button onClick={handleAdd} className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm">
             <Plus size={16} />
           </button>
