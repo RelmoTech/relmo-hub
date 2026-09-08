@@ -8,7 +8,7 @@ const MONTHS = ['Januari','Februari','Maart','April','Mei','Juni','Juli','August
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec']
 const DAYS = ['Ma','Di','Wo','Do','Vr','Za','Zo']
 
-const empty: Partial<Reservation> = { klant: '', event: '', datum: '', info: '', email: '', tel: '', aantal_dagen: null, aantal_uren: null, prijs: null }
+const empty: Partial<Reservation> = { klant: '', event: '', datum: '', einddatum: null, info: '', email: '', tel: '', aantal_dagen: null, aantal_uren: null, prijs: null }
 
 function pad(n: number) { return String(n).padStart(2, '0') }
 function fmt(n: number) { return `€${n.toFixed(2).replace('.', ',')}` }
@@ -31,8 +31,16 @@ export function ReservationRobot() {
 
   const resByDate: Record<string, Reservation[]> = {}
   for (const r of reservations) {
-    const key = r.datum?.slice(0, 10) ?? ''
-    if (key) (resByDate[key] ??= []).push(r)
+    const start = r.datum?.slice(0, 10) ?? ''
+    if (!start) continue
+    const end = r.einddatum?.slice(0, 10) ?? start
+    const cur = new Date(start)
+    const endDate = new Date(end)
+    while (cur <= endDate) {
+      const key = cur.toISOString().split('T')[0]
+      ;(resByDate[key] ??= []).push(r)
+      cur.setDate(cur.getDate() + 1)
+    }
   }
 
   const handleDayClick = (day: number) => {
@@ -46,6 +54,7 @@ export function ReservationRobot() {
       ...modal,
       aantal_dagen: durationType === 'dagen' ? (modal.aantal_dagen ?? null) : null,
       aantal_uren: durationType === 'uren' ? (modal.aantal_uren ?? null) : null,
+      einddatum: durationType === 'dagen' ? (modal.einddatum ?? null) : null,
     }
     await upsert(toSave)
     setModal(null)
@@ -200,6 +209,7 @@ export function ReservationRobot() {
                     <div className="font-semibold">{r.klant}</div>
                     <div className="flex gap-3 mt-0.5 flex-wrap text-xs text-slate-500">
                       {r.event && <span>{r.event}</span>}
+                      {r.einddatum && r.einddatum !== r.datum ? <span>t/m {r.einddatum?.slice(8,10)} {MONTHS_SHORT[parseInt(r.einddatum?.slice(5,7) ?? '1') - 1]}</span> : null}
                       {r.aantal_dagen && <span>{r.aantal_dagen} dag{r.aantal_dagen > 1 ? 'en' : ''}</span>}
                       {r.aantal_uren && <span>{r.aantal_uren} uur</span>}
                       {r.prijs && <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmt(r.prijs)}</span>}
@@ -238,21 +248,50 @@ export function ReservationRobot() {
                 <label className="text-xs text-slate-500 block mb-1">Event</label>
                 <input value={modal.event || ''} onChange={e => setModal({ ...modal, event: e.target.value })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Type event..." />
               </div>
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">Datum *</label>
-                <input type="date" value={modal.datum || ''} onChange={e => setModal({ ...modal, datum: e.target.value })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Startdatum *</label>
+                  <input type="date" value={modal.datum || ''} onChange={e => {
+                    const newDatum = e.target.value
+                    let dagen = modal.aantal_dagen ?? null
+                    if (newDatum && modal.einddatum) {
+                      const diff = Math.round((new Date(modal.einddatum).getTime() - new Date(newDatum).getTime()) / 86400000) + 1
+                      dagen = diff > 0 ? diff : null
+                    }
+                    setModal({ ...modal, datum: newDatum, aantal_dagen: dagen })
+                  }} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" />
+                </div>
+                {durationType === 'dagen' && (
+                  <div>
+                    <label className="text-xs text-slate-500 block mb-1">Einddatum</label>
+                    <input type="date" value={modal.einddatum || ''} min={modal.datum || ''} onChange={e => {
+                      const eind = e.target.value
+                      let dagen = modal.aantal_dagen ?? null
+                      if (modal.datum && eind) {
+                        const diff = Math.round((new Date(eind).getTime() - new Date(modal.datum).getTime()) / 86400000) + 1
+                        dagen = diff > 0 ? diff : null
+                      }
+                      setModal({ ...modal, einddatum: eind || null, aantal_dagen: dagen })
+                    }} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" />
+                  </div>
+                )}
               </div>
+              {modal.einddatum && modal.datum && modal.einddatum >= modal.datum && (
+                <p className="text-xs text-blue-500 -mt-1">
+                  {modal.aantal_dagen} dag{modal.aantal_dagen !== 1 ? 'en' : ''} geboekt
+                </p>
+              )}
 
               {/* Duur */}
               <div>
                 <label className="text-xs text-slate-500 block mb-1">Duur</label>
                 <div className="flex gap-2">
                   <div className="flex bg-slate-100 dark:bg-slate-800 rounded-lg p-0.5 text-xs font-medium shrink-0">
-                    <button type="button" onClick={() => setDurationType('dagen')} className={`px-3 py-1.5 rounded-md transition-colors ${durationType === 'dagen' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-500'}`}>Dagen</button>
-                    <button type="button" onClick={() => setDurationType('uren')} className={`px-3 py-1.5 rounded-md transition-colors ${durationType === 'uren' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-500'}`}>Uren</button>
+                    <button type="button" onClick={() => { setDurationType('dagen'); setModal({ ...modal, aantal_uren: null }) }} className={`px-3 py-1.5 rounded-md transition-colors ${durationType === 'dagen' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-500'}`}>Dagen</button>
+                    <button type="button" onClick={() => { setDurationType('uren'); setModal({ ...modal, einddatum: null, aantal_dagen: null }) }} className={`px-3 py-1.5 rounded-md transition-colors ${durationType === 'uren' ? 'bg-white dark:bg-slate-700 shadow-sm' : 'text-slate-500'}`}>Uren</button>
                   </div>
                   {durationType === 'dagen' ? (
-                    <input type="number" min="1" step="0.5" value={modal.aantal_dagen ?? ''} onChange={e => setModal({ ...modal, aantal_dagen: e.target.value ? Number(e.target.value) : null })} className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Aantal dagen..." />
+                    <input type="number" min="1" step="1" value={modal.aantal_dagen ?? ''} onChange={e => setModal({ ...modal, aantal_dagen: e.target.value ? Number(e.target.value) : null, einddatum: null })} className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Aantal dagen..." />
                   ) : (
                     <input type="number" min="1" value={modal.aantal_uren ?? ''} onChange={e => setModal({ ...modal, aantal_uren: e.target.value ? Number(e.target.value) : null })} className="flex-1 px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Aantal uren..." />
                   )}
