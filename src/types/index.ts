@@ -26,6 +26,9 @@ export interface Todo {
   priority: 'hoog' | 'normaal' | 'laag'
   kanban_column: 'todo' | 'in-progress' | 'review' | 'done'
   notes: string | null
+  recurrence: 'daily' | 'weekly' | null
+  recurrence_days: string | null
+  last_done_date: string | null
   created_at: string
 }
 

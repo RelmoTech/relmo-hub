@@ -72,8 +72,13 @@ export function useTodos(activityId?: string | null) {
     fetch()
   }
 
-  const toggle = async (id: string, done: boolean) => {
-    await supabase.from('todos').update({ done }).eq('id', id)
+  const toggle = async (id: string, done: boolean, isRecurring?: boolean) => {
+    if (isRecurring) {
+      const today = new Date().toISOString().split('T')[0]
+      await supabase.from('todos').update({ last_done_date: done ? today : null }).eq('id', id)
+    } else {
+      await supabase.from('todos').update({ done }).eq('id', id)
+    }
     fetch()
   }
 
