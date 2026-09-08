@@ -280,7 +280,7 @@ export function ReservationRobot() {
               </div>
               <div>
                 <label className="text-xs text-slate-500 block mb-1">Info</label>
-                <textarea value={modal.info || ''} onChange={e => setModal({ ...modal, info: e.target.value })} rows={2} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm resize-none" placeholder="Extra info..." />
+                <textarea value={modal.info || ''} onChange={e => setModal({ ...modal, info: e.target.value })} rows={6} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm resize-y" placeholder="Extra info..." />
               </div>
             </div>
             <div className="flex gap-2">
