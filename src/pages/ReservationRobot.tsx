@@ -66,7 +66,8 @@ export function ReservationRobot() {
   }
 
   const todayStr = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`
-  const upcoming = reservations.filter(r => (r.datum ?? '') >= todayStr).slice(0, 30)
+  const upcoming = reservations.filter(r => (r.datum ?? '') >= todayStr)
+  const past = reservations.filter(r => (r.datum ?? '') < todayStr).reverse()
 
   // Maandoverzicht per jaar
   const statsYear = today.getFullYear()
@@ -192,44 +193,52 @@ export function ReservationRobot() {
         </div>
       )}
 
-      {view === 'list' && (
-        <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="px-5 py-3 border-b dark:border-slate-700 text-sm font-semibold text-slate-500">Aankomende reservaties</div>
-          {upcoming.length === 0 ? (
-            <p className="text-center text-slate-400 py-12 text-sm">Geen reservaties</p>
-          ) : (
-            <div className="divide-y dark:divide-slate-700">
-              {upcoming.map(r => (
-                <div key={r.id} className="flex items-start gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <div className="text-center min-w-[48px]">
-                    <div className="text-xs text-slate-400">{MONTHS_SHORT[parseInt(r.datum?.slice(5,7) ?? '1') - 1]}</div>
-                    <div className="text-xl font-bold">{r.datum?.slice(8,10)}</div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold">{r.klant}</div>
-                    <div className="flex gap-3 mt-0.5 flex-wrap text-xs text-slate-500">
-                      {r.event && <span>{r.event}</span>}
-                      {r.einddatum && r.einddatum !== r.datum ? <span>t/m {r.einddatum?.slice(8,10)} {MONTHS_SHORT[parseInt(r.einddatum?.slice(5,7) ?? '1') - 1]}</span> : null}
-                      {r.aantal_dagen && <span>{r.aantal_dagen} dag{r.aantal_dagen > 1 ? 'en' : ''}</span>}
-                      {r.aantal_uren && <span>{r.aantal_uren} uur</span>}
-                      {r.prijs && <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmt(r.prijs)}</span>}
-                    </div>
-                    <div className="flex gap-3 mt-1 flex-wrap">
-                      {r.email && <a href={`mailto:${r.email}`} className="flex items-center gap-1 text-xs text-blue-500"><Mail size={11} />{r.email}</a>}
-                      {r.tel && <a href={`tel:${r.tel}`} className="flex items-center gap-1 text-xs text-emerald-500"><Phone size={11} />{r.tel}</a>}
-                    </div>
-                    {r.info && <div className="text-xs text-slate-400 mt-1">{r.info}</div>}
-                  </div>
-                  <div className="flex gap-1 shrink-0">
-                    <button onClick={() => openModal(r)} className="p-1.5 text-slate-400 hover:text-blue-500"><Edit2 size={14} /></button>
-                    <button onClick={() => remove(r.id)} className="p-1.5 text-slate-400 hover:text-red-500"><Trash2 size={14} /></button>
-                  </div>
-                </div>
-              ))}
+      {view === 'list' && (() => {
+        const ReservRow = ({ r, dim }: { r: Reservation; dim?: boolean }) => (
+          <div className={`flex items-start gap-4 px-5 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 ${dim ? 'opacity-60' : ''}`}>
+            <div className="text-center min-w-[48px]">
+              <div className="text-xs text-slate-400">{MONTHS_SHORT[parseInt(r.datum?.slice(5,7) ?? '1') - 1]}</div>
+              <div className="text-xl font-bold">{r.datum?.slice(8,10)}</div>
+              <div className="text-xs text-slate-400">{r.datum?.slice(0,4)}</div>
             </div>
-          )}
-        </div>
-      )}
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold">{r.klant}</div>
+              <div className="flex gap-3 mt-0.5 flex-wrap text-xs text-slate-500">
+                {r.event && <span>{r.event}</span>}
+                {r.einddatum && r.einddatum !== r.datum ? <span>t/m {r.einddatum?.slice(8,10)} {MONTHS_SHORT[parseInt(r.einddatum?.slice(5,7) ?? '1') - 1]}</span> : null}
+                {r.aantal_dagen && <span>{r.aantal_dagen} dag{r.aantal_dagen > 1 ? 'en' : ''}</span>}
+                {r.aantal_uren && <span>{r.aantal_uren} uur</span>}
+                {r.prijs && <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmt(r.prijs)}</span>}
+              </div>
+              <div className="flex gap-3 mt-1 flex-wrap">
+                {r.email && <a href={`mailto:${r.email}`} className="flex items-center gap-1 text-xs text-blue-500"><Mail size={11} />{r.email}</a>}
+                {r.tel && <a href={`tel:${r.tel}`} className="flex items-center gap-1 text-xs text-emerald-500"><Phone size={11} />{r.tel}</a>}
+              </div>
+              {r.info && <div className="text-xs text-slate-400 mt-1">{r.info}</div>}
+            </div>
+            <div className="flex gap-1 shrink-0">
+              <button onClick={() => openModal(r)} className="p-1.5 text-slate-400 hover:text-blue-500"><Edit2 size={14} /></button>
+              <button onClick={() => remove(r.id)} className="p-1.5 text-slate-400 hover:text-red-500"><Trash2 size={14} /></button>
+            </div>
+          </div>
+        )
+        return (
+          <div className="space-y-4">
+            <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+              <div className="px-5 py-3 border-b dark:border-slate-700 text-sm font-semibold text-slate-500">Aankomende reservaties ({upcoming.length})</div>
+              {upcoming.length === 0
+                ? <p className="text-center text-slate-400 py-8 text-sm">Geen aankomende reservaties</p>
+                : <div className="divide-y dark:divide-slate-700">{upcoming.map(r => <ReservRow key={r.id} r={r} />)}</div>}
+            </div>
+            {past.length > 0 && (
+              <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="px-5 py-3 border-b dark:border-slate-700 text-sm font-semibold text-slate-500">Voorbije reservaties ({past.length})</div>
+                <div className="divide-y dark:divide-slate-700">{past.map(r => <ReservRow key={r.id} r={r} dim />)}</div>
+              </div>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Modal */}
       {modal && (
