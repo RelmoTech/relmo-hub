@@ -95,6 +95,15 @@ export function Taken() {
       else later.push(todo)
     }
 
+    const byDate = (a: Todo, b: Todo) => {
+      const da = a.due_date ?? '9999-99-99'
+      const db = b.due_date ?? '9999-99-99'
+      return da < db ? -1 : da > db ? 1 : 0
+    }
+    vandaag.sort(byDate)
+    dezeWeek.sort(byDate)
+    later.sort(byDate)
+
     return [
       { label: t('today'), items: vandaag },
       { label: t('thisWeek'), items: dezeWeek },
