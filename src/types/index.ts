@@ -89,6 +89,7 @@ export interface Reservation {
   event: string | null
   datum: string
   einddatum: string | null
+  bron: string | null
   info: string | null
   email: string | null
   tel: string | null

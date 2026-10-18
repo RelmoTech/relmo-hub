@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Plus, X, ChevronLeft, ChevronRight, Trash2, Edit2, Phone, Mail, Euro } from 'lucide-react'
+import { Plus, X, ChevronLeft, ChevronRight, Trash2, Edit2, Phone, Mail, Euro, Radio } from 'lucide-react'
 import { useReservations } from '@/hooks/useSupabase'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import type { Reservation } from '@/types'
@@ -8,7 +8,9 @@ const MONTHS = ['Januari','Februari','Maart','April','Mei','Juni','Juli','August
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec']
 const DAYS = ['Ma','Di','Wo','Do','Vr','Za','Zo']
 
-const empty: Partial<Reservation> = { klant: '', event: '', datum: '', einddatum: null, info: '', email: '', tel: '', aantal_dagen: null, aantal_uren: null, prijs: null }
+const BRONNEN = ['Telefoon', 'E-mail', 'Instagram', 'Facebook', 'Website', 'Via kennissen', 'Andere']
+
+const empty: Partial<Reservation> = { klant: '', event: '', datum: '', einddatum: null, bron: null, info: '', email: '', tel: '', aantal_dagen: null, aantal_uren: null, prijs: null }
 
 function pad(n: number) { return String(n).padStart(2, '0') }
 function fmt(n: number) { return `€${n.toFixed(2).replace('.', ',')}` }
@@ -209,12 +211,14 @@ export function ReservationRobot() {
                 {r.aantal_dagen && <span>{r.aantal_dagen} dag{r.aantal_dagen > 1 ? 'en' : ''}</span>}
                 {r.aantal_uren && <span>{r.aantal_uren} uur</span>}
                 {r.prijs && <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{fmt(r.prijs)}</span>}
+                {r.bron && <span className="flex items-center gap-1 text-slate-400"><Radio size={10} />{r.bron}</span>}
               </div>
               <div className="flex gap-3 mt-1 flex-wrap">
                 {r.email && <a href={`mailto:${r.email}`} className="flex items-center gap-1 text-xs text-blue-500"><Mail size={11} />{r.email}</a>}
                 {r.tel && <a href={`tel:${r.tel}`} className="flex items-center gap-1 text-xs text-emerald-500"><Phone size={11} />{r.tel}</a>}
               </div>
               {r.info && <div className="text-xs text-slate-400 mt-1">{r.info}</div>}
+              {r.created_at && <div className="text-xs text-slate-300 dark:text-slate-600 mt-0.5">Toegevoegd: {new Date(r.created_at).toLocaleDateString('nl-BE', { day: '2-digit', month: 'short', year: 'numeric' })}</div>}
             </div>
             <div className="flex gap-1 shrink-0">
               <button onClick={() => openModal(r)} className="p-1.5 text-slate-400 hover:text-blue-500"><Edit2 size={14} /></button>
@@ -253,10 +257,22 @@ export function ReservationRobot() {
                 <label className="text-xs text-slate-500 block mb-1">Klant *</label>
                 <input value={modal.klant || ''} onChange={e => setModal({ ...modal, klant: e.target.value })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Naam klant..." />
               </div>
-              <div>
-                <label className="text-xs text-slate-500 block mb-1">Event</label>
-                <input value={modal.event || ''} onChange={e => setModal({ ...modal, event: e.target.value })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Type event..." />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Event</label>
+                  <input value={modal.event || ''} onChange={e => setModal({ ...modal, event: e.target.value })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm" placeholder="Type event..." />
+                </div>
+                <div>
+                  <label className="text-xs text-slate-500 block mb-1">Bron</label>
+                  <select value={modal.bron || ''} onChange={e => setModal({ ...modal, bron: e.target.value || null })} className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 rounded-lg bg-transparent text-sm">
+                    <option value="">— kies bron —</option>
+                    {BRONNEN.map(b => <option key={b} value={b}>{b}</option>)}
+                  </select>
+                </div>
               </div>
+              {modal.id && modal.created_at && (
+                <p className="text-xs text-slate-400">Toegevoegd op {new Date(modal.created_at).toLocaleDateString('nl-BE', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-slate-500 block mb-1">Startdatum *</label>
