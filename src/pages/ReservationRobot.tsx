@@ -8,7 +8,7 @@ const MONTHS = ['Januari','Februari','Maart','April','Mei','Juni','Juli','August
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Aug','Sep','Okt','Nov','Dec']
 const DAYS = ['Ma','Di','Wo','Do','Vr','Za','Zo']
 
-const BRONNEN = ['Telefoon', 'E-mail', 'Instagram', 'Facebook', 'Website', 'Via kennissen', 'Andere']
+const BRONNEN = ['Telefoon', 'E-mail', 'Instagram', 'Linkedin', 'Cold call', 'Referral', 'Andere']
 
 const empty: Partial<Reservation> = { klant: '', event: '', datum: '', einddatum: null, bron: null, info: '', email: '', tel: '', aantal_dagen: null, aantal_uren: null, prijs: null }
 
