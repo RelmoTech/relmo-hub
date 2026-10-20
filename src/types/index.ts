@@ -99,6 +99,20 @@ export interface Reservation {
   created_at: string
 }
 
+export interface CoachingAction {
+  id: string
+  week: number
+  title: string
+  category: 'prospectie' | 'marketing' | 'organisatie' | 'dashboard' | 'overig'
+  done: boolean
+  done_at: string | null
+  due_date: string | null
+  linked_module: string | null
+  notes: string | null
+  sort_order: number
+  created_at: string
+}
+
 export interface FixedCostTemplate {
   id: string
   description: string

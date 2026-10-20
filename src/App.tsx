@@ -12,6 +12,7 @@ import { Domeinen } from '@/pages/Domeinen'
 import { Brainstorm } from '@/pages/Brainstorm'
 import { Prospection } from '@/pages/Prospection'
 import { ReservationRobot } from '@/pages/ReservationRobot'
+import { CoachingUltra } from '@/pages/CoachingUltra'
 import { Login } from '@/pages/Login'
 import { ActivityFilterContext } from '@/hooks/useActivityFilter'
 import { LanguageContext } from '@/hooks/useLanguage'
@@ -58,6 +59,7 @@ export default function App() {
             <Route path="/prospection" element={<Prospection />} />
               <Route path="/prospection-maroc" element={<Prospection tableName="prospects_maroc" title="Prospection Maroc" />} />
               <Route path="/reservations" element={<ReservationRobot />} />
+              <Route path="/coaching" element={<CoachingUltra />} />
               <Route path="/instellingen" element={<Instellingen />} />
             </Route>
           </Routes>

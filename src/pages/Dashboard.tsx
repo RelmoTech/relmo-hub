@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
-import { TrendingUp, TrendingDown, Wallet, FileText, AlertCircle, AlertTriangle } from 'lucide-react'
-import { useTransactions, useProjects, useTodos, useReservations, useDomeinen } from '@/hooks/useSupabase'
+import { TrendingUp, TrendingDown, Wallet, FileText, AlertCircle, AlertTriangle, Zap, Check } from 'lucide-react'
+import { useTransactions, useProjects, useTodos, useReservations, useDomeinen, useCoachingActions } from '@/hooks/useSupabase'
 import { useActivityFilter } from '@/hooks/useActivityFilter'
 import { useLanguage } from '@/hooks/useLanguage'
 import { formatCurrency, formatDate } from '@/lib/utils'
@@ -61,6 +61,7 @@ export function Dashboard() {
   }, [todos, now])
 
   const { domeinen } = useDomeinen()
+  const { actions: coachingActions, toggle: coachingToggle } = useCoachingActions()
   const expiringSoon = useMemo(() => {
     const today = new Date().setHours(0,0,0,0)
     return domeinen.filter(d => {
@@ -71,6 +72,22 @@ export function Dashboard() {
   }, [domeinen])
 
   const activeProjects = projects.filter(p => p.status === 'actief').slice(0, 5)
+
+  const coachingWeeks = useMemo(() => {
+    const map = new Map<number, typeof coachingActions>()
+    for (const a of coachingActions) {
+      if (!map.has(a.week)) map.set(a.week, [])
+      map.get(a.week)!.push(a)
+    }
+    return map
+  }, [coachingActions])
+  const latestWeek = coachingWeeks.size > 0 ? Math.max(...coachingWeeks.keys()) : null
+  const latestWeekActions = latestWeek ? (coachingWeeks.get(latestWeek) ?? []) : []
+  const latestDone = latestWeekActions.filter(a => a.done).length
+  const latestOpen = latestWeekActions.filter(a => !a.done)
+  const prevWeeksOpen = latestWeek
+    ? coachingActions.filter(a => a.week < latestWeek && !a.done).length
+    : 0
   const recentTx = transactions.slice(0, 5)
 
   const cards = [
@@ -183,6 +200,43 @@ export function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Coaching ULTRA widget */}
+      {latestWeek !== null && (
+        <div className="bg-white dark:bg-slate-900 rounded-xl p-4 border border-slate-200 dark:border-slate-700">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <Zap size={15} className="text-amber-400" />
+              <h2 className="text-sm font-semibold">Coaching ULTRA — Semaine {latestWeek}</h2>
+              <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 px-2 py-0.5 rounded-full">{latestDone}/{latestWeekActions.length}</span>
+            </div>
+            <Link to="/coaching" className="text-xs text-blue-500">Voir tout</Link>
+          </div>
+          {/* Progress bar */}
+          <div className="h-1 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden mb-3">
+            <div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${latestWeekActions.length > 0 ? Math.round((latestDone / latestWeekActions.length) * 100) : 0}%` }} />
+          </div>
+          <div className="space-y-1.5">
+            {latestOpen.slice(0, 5).map(action => (
+              <div key={action.id} className="flex items-start gap-2.5">
+                <button
+                  onClick={() => coachingToggle(action.id, true)}
+                  className="flex-shrink-0 mt-0.5 w-4 h-4 rounded-full border-2 border-slate-300 dark:border-slate-600 hover:border-emerald-400 transition-colors flex items-center justify-center"
+                />
+                <span className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">{action.title}</span>
+              </div>
+            ))}
+            {latestOpen.length === 0 && (
+              <div className="flex items-center gap-2 text-xs text-emerald-500">
+                <Check size={13} /> Toutes les actions de la semaine sont complétées !
+              </div>
+            )}
+          </div>
+          {prevWeeksOpen > 0 && (
+            <p className="mt-2 text-xs text-amber-500">⚠ {prevWeeksOpen} action{prevWeeksOpen > 1 ? 's' : ''} de semaines précédentes encore ouverte{prevWeeksOpen > 1 ? 's' : ''}</p>
+          )}
+        </div>
+      )}
     </div>
   )
 }

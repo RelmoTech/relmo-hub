@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate, Prospect, Reservation, Domein } from '@/types'
+import type { Activity, Project, Todo, Transaction, Invoice, Category, SupplierCategory, FixedCostTemplate, Prospect, Reservation, Domein, CoachingAction } from '@/types'
 
 export function useActivities() {
   const [activities, setActivities] = useState<Activity[]>([])
@@ -323,4 +323,51 @@ export function useSupplierCategories() {
   }
 
   return { supplierCategories, upsert, remove, refetch: fetch }
+}
+
+export function useCoachingActions() {
+  const [actions, setActions] = useState<CoachingAction[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetch = useCallback(async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('coaching_actions')
+      .select('*')
+      .order('week', { ascending: false })
+      .order('sort_order', { ascending: true })
+    setActions(data || [])
+    setLoading(false)
+  }, [])
+
+  useEffect(() => { fetch() }, [fetch])
+
+  const upsert = async (action: Partial<CoachingAction>) => {
+    if (action.id) {
+      await supabase.from('coaching_actions').update(action).eq('id', action.id)
+    } else {
+      await supabase.from('coaching_actions').insert(action)
+    }
+    fetch()
+  }
+
+  const toggle = async (id: string, done: boolean) => {
+    await supabase.from('coaching_actions').update({
+      done,
+      done_at: done ? new Date().toISOString() : null,
+    }).eq('id', id)
+    fetch()
+  }
+
+  const remove = async (id: string) => {
+    await supabase.from('coaching_actions').delete().eq('id', id)
+    fetch()
+  }
+
+  const bulkInsert = async (rows: Partial<CoachingAction>[]) => {
+    await supabase.from('coaching_actions').insert(rows)
+    fetch()
+  }
+
+  return { actions, loading, upsert, toggle, remove, bulkInsert, refetch: fetch }
 }
